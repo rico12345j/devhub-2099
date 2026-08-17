@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>📋 الخدمات — Render Clone</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+<body>
+
+<!-- ===== الشريط الجانبي ===== -->
+<div class="sidebar">
+    <div class="sidebar-header">
+        <i class="fas fa-cloud"></i>
+        <span>Render</span>
+    </div>
+    <div class="sidebar-menu">
+        <a href="/dashboard" class="sidebar-item">
+            <i class="fas fa-home"></i> لوحة التحكم
+        </a>
+        <a href="/services" class="sidebar-item active">
+            <i class="fas fa-server"></i> الخدمات
+        </a>
+        <a href="/deploy" class="sidebar-item">
+            <i class="fas fa-rocket"></i> نشر
+        </a>
+        <a href="/settings" class="sidebar-item">
+            <i class="fas fa-cog"></i> الإعدادات
+        </a>
+        <a href="#" class="sidebar-item" onclick="logout()">
+            <i class="fas fa-sign-out-alt"></i> تسجيل الخروج
+        </a>
+    </div>
+</div>
+
+<!-- ===== المحتوى الرئيسي ===== -->
+<div class="main-content">
+    <div class="topbar">
+        <h1>📋 الخدمات</h1>
+        <div class="topbar-actions">
+            <button class="btn btn-primary" onclick="window.location.href='/deploy'">
+                <i class="fas fa-plus"></i> نشر جديد
+            </button>
+            <button class="btn btn-outline" onclick="loadServices()">
+                <i class="fas fa-sync"></i> تحديث
+            </button>
+        </div>
+    </div>
+
+    <!-- ===== الفلترة والبحث ===== -->
+    <div class="filter-bar">
+        <div class="filter-buttons">
+            <button class="filter-btn active" onclick="filterServices('all', this)">الكل</button>
+            <button class="filter-btn" onclick="filterServices('running', this)">قيد التشغيل</button>
+            <button class="filter-btn" onclick="filterServices('stopped', this)">متوقفة</button>
+            <button class="filter-btn" onclick="filterServices('building', this)">قيد البناء</button>
+        </div>
+        <div class="search-box">
+            <i class="fas fa-search"></i>
+            <input type="text" id="serviceSearch" placeholder="🔍 بحث عن خدمة..." oninput="searchServices(this.value)">
+        </div>
+    </div>
+
+    <!-- ===== قائمة الخدمات ===== -->
+    <div id="servicesList">
+        <div class="loading-state">
+            <i class="fas fa-spinner fa-spin"></i>
+            <p>جارٍ تحميل الخدمات...</p>
+        </div>
+    </div>
+</div>
+
+<script src="script.js"></script>
+<script>
+    let allServices = [];
+
+    // ===== تحميل الخدمات =====
+    async function loadServices() {
+        try {
+            const container = document.getElementById('servicesList');
+            container.innerHTML = `
+                <div class="loading-state">
+                    <i class="fas fa-spinner fa-spin"></i>
+                    <p>جارٍ تحميل الخدمات...</p>
+                </div>
+            `;
+            
+            const response = await fetch('/api/services/');
+            const data = await response.json();
+            
+            if (data.success) {
+                allServices = data.services;
+                renderServices(allServices);
+            }
+        } catch (error) {
+            console.error('❌ فشل تحميل الخدمات:', error);
+            document.getElementById('servicesList').innerHTML = `
+                <div class="empty-state">
+                    <i class="fas fa-exclamation-circle"></i>
+                    <p>فشل تحميل الخدمات</p>
+                    <button class="btn btn-primary" onclick="loadServices()">إعادة المحاولة</button>
+                </div>
+            `;
+        }
+    }
+
+    // ===== عرض الخدمات =====
+    function renderServices(services) {
+        const container = document.getElementById('servicesList');
+        
+        if (!services || services.length === 0) {
+            container.innerHTML = `
+                <div class="empty-state">
+                    <i class="fas fa-inbox"></i>
+                    <p>لا توجد خدمات</p>
+                    <button class="btn btn-primary" onclick="window.location.href='/deploy'">
+                        نشر خدمة جديدة
+                    </button>
+                </div>
+            `;
+            return;
+        }
+        
+        container.innerHTML = services.map(s => `
+            <div class="service-card">
+                <div class="service-card-header">
+                    <div class="service-name-section">
+                        <span class="service-name">${s.name}</span>
+                        <span class="service-status ${s.status}">${s.status}</span>
+                    </div>
+                    <div class="service-actions">
+                        <a href="/service/${s.id}" class="btn btn-outline">
+                            <i class="fas fa-eye"></i> عرض
+                        </a>
+                        <a href="/logs/${s.id}" class="btn btn-outline">
+                            <i class="fas fa-list"></i> سجلات
+                        </a>
+                        ${s.status === 'running' ? 
+                            `<button onclick="stopService('${s.id}')" class="btn btn-danger">
+                                <i class="fas fa-stop"></i>
+                            </button>` :
+                            `<button onclick="startService('${s.id}')" class="btn btn-primary">
+                                <i class="fas fa-play"></i>
+                            </button>`
+                        }
+                        <button onclick="deleteService('${s.id}')" class="btn btn-danger">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="service-card-body">
+                    <div class="service-info">
+                        <span><i class="fas fa-link"></i> ${s.url}</span>
+                        <span><i class="fas fa-code"></i> ${s.runtime}</span>
+                        <span><i class="fas fa-calendar"></i> ${new Date(s.created_at).toLocaleDateString('ar')}</span>
+                    </div>
+                </div>
+            </div>
+        `).join('');
+    }
+
+    // ===== تصفية الخدمات =====
+    function filterServices(status, btn) {
+        document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+        if (btn) btn.classList.add('active');
+        
+        if (status === 'all') {
+            renderServices(allServices);
+        } else {
+            const filtered = allServices.filter(s => s.status === status);
+            renderServices(filtered);
+        }
+    }
+
+    // ===== البحث في الخدمات =====
+    function searchServices(query) {
+        const q = query.toLowerCase().trim();
+        if (!q) {
+            renderServices(allServices);
+            return;
+        }
+        const filtered = allServices.filter(s => 
+            s.name.toLowerCase().includes(q) || 
+            s.url.includes(q) ||
+            s.runtime.toLowerCase().includes(q)
+        );
+        renderServices(filtered);
+    }
+
+    // ===== إيقاف خدمة =====
+    async function stopService(serviceId) {
+        if (!confirm('⛔ هل أنت متأكد من إيقاف هذه الخدمة؟')) return;
+        try {
+            const response = await fetch(`/api/services/${serviceId}/stop`, { method: 'POST' });
+            const data = await response.json();
+            if (data.success) {
+                loadServices();
+            }
+        } catch (error) {
+            alert('❌ فشل إيقاف الخدمة');
+        }
+    }
+
+    // ===== تشغيل خدمة =====
+    async function startService(serviceId) {
+        try {
+            const response = await fetch(`/api/services/${serviceId}/start`, { method: 'POST' });
+            const data = await response.json();
+            if (data.success) {
+                loadServices();
+            }
+        } catch (error) {
+            alert('❌ فشل تشغيل الخدمة');
+        }
+    }
+
+    // ===== حذف خدمة =====
+    async function deleteService(serviceId) {
+        if (!confirm('🗑️ هل أنت متأكد من حذف هذه الخدمة؟ هذا الإجراء لا يمكن التراجع عنه!')) return;
+        try {
+            const response = await fetch(`/api/services/${serviceId}`, { method: 'DELETE' });
+            const data = await response.json();
+            if (data.success) {
+                loadServices();
+            }
+        } catch (error) {
+            alert('❌ فشل حذف الخدمة');
+        }
+    }
+
+    loadServices();
+    setInterval(loadServices, 30000);
+</script>
+</body>
+</html>
