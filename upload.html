@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>📤 رفع ملف — DARKHUB</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+<body>
+
+<!-- ===== شريط التنقل ===== -->
+<nav class="navbar">
+    <div class="container">
+        <div class="nav-left">
+            <a href="/" class="nav-logo">
+                <i class="fas fa-skull"></i>
+                <span>DARKHUB</span>
+            </a>
+            <div class="nav-links">
+                <a href="/" class="nav-link">الرئيسية</a>
+                <a href="/dashboard" class="nav-link">لوحة التحكم</a>
+                <a href="/upload" class="nav-link active">رفع</a>
+                <a href="/files" class="nav-link">الملفات</a>
+                <a href="/execute" class="nav-link">تشغيل</a>
+                <a href="/logs" class="nav-link">السجلات</a>
+            </div>
+        </div>
+        <div class="nav-right">
+            <button class="btn btn-outline" onclick="toggleDarkMode()">
+                <i class="fas fa-moon"></i>
+            </button>
+            <button class="btn btn-primary" onclick="window.location.href='/upload'">
+                <i class="fas fa-upload"></i> رفع ملف
+            </button>
+        </div>
+    </div>
+</nav>
+
+<!-- ===== المحتوى الرئيسي ===== -->
+<div class="upload-container">
+    <div class="upload-header">
+        <h1>📤 رفع ملف</h1>
+        <p>ارفع أي ملف واحصل على روابط تحكم وتشغيل فورية</p>
+    </div>
+
+    <div class="upload-card">
+        <form id="uploadForm" onsubmit="return false;">
+            <div class="upload-area" id="uploadArea" onclick="document.getElementById('fileInput').click()">
+                <i class="fas fa-cloud-upload-alt"></i>
+                <p>اضغط لاختيار ملف أو اسحب وأفلت</p>
+                <span class="upload-hint">الحد الأقصى: 1GB</span>
+            </div>
+            <input type="file" id="fileInput" style="display:none;" onchange="handleFileSelect(event)">
+
+            <div id="fileInfo" style="display:none;" class="file-info-card">
+                <div class="file-info-details">
+                    <span id="fileName">الملف</span>
+                    <span id="fileSize">0 B</span>
+                    <span id="fileType">نوع الملف</span>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="fileNameInput">اسم الملف (اختياري)</label>
+                <input type="text" id="fileNameInput" placeholder="اسم الملف" class="form-input">
+            </div>
+
+            <div class="form-group">
+                <label for="fileDesc">الوصف (اختياري)</label>
+                <textarea id="fileDesc" placeholder="وصف الملف" class="form-input" rows="2"></textarea>
+            </div>
+
+            <div class="form-group checkbox-group">
+                <label>
+                    <input type="checkbox" id="isScript" checked>
+                    هذا إسكربت قابل للتشغيل
+                </label>
+            </div>
+
+            <button type="submit" class="btn btn-primary btn-large" onclick="uploadFile()">
+                <i class="fas fa-upload"></i> رفع الملف
+            </button>
+
+            <div id="uploadProgress" style="display:none;">
+                <div class="progress-bar">
+                    <div class="progress-fill" id="uploadProgressBar" style="width: 0%;"></div>
+                </div>
+                <span id="uploadProgressText">0%</span>
+            </div>
+        </form>
+    </div>
+
+    <div id="uploadResult" style="display:none;" class="upload-result">
+        <h3>✅ تم الرفع بنجاح</h3>
+        <div class="result-links">
+            <div class="result-link">
+                <span>🔗 رابط التحكم:</span>
+                <input type="text" id="controlLink" readonly>
+                <button class="btn btn-outline btn-small" onclick="copyText('controlLink')">
+                    <i class="fas fa-copy"></i>
+                </button>
+            </div>
+            <div class="result-link">
+                <span>▶️ رابط التشغيل:</span>
+                <input type="text" id="executeLink" readonly>
+                <button class="btn btn-outline btn-small" onclick="copyText('executeLink')">
+                    <i class="fas fa-copy"></i>
+                </button>
+            </div>
+            <div class="result-link">
+                <span>📥 رابط التنزيل:</span>
+                <input type="text" id="downloadLink" readonly>
+                <button class="btn btn-outline btn-small" onclick="copyText('downloadLink')">
+                    <i class="fas fa-copy"></i>
+                </button>
+            </div>
+        </div>
+        <button class="btn btn-primary" onclick="window.location.href='/files'">
+            عرض الملفات
+        </button>
+    </div>
+</div>
+
+<!-- ===== التذييل ===== -->
+<footer class="footer">
+    <div class="container">
+        <div class="footer-content">
+            <span>🐙 DARKHUB v1.0.0</span>
+            <span>💀 جميع الحقوق محفوظة للـ Void</span>
+        </div>
+    </div>
+</footer>
+
+<script src="script.js"></script>
+<script>
+    let selectedFile = null;
+
+    function handleFileSelect(event) {
+        const file = event.target.files[0];
+        if (file) {
+            selectedFile = file;
+            document.getElementById('fileInfo').style.display = 'block';
+            document.getElementById('fileName').textContent = file.name;
+            document.getElementById('fileSize').textContent = formatSize(file.size);
+            document.getElementById('fileType').textContent = file.type || 'غير معروف';
+            document.getElementById('fileNameInput').value = file.name;
+            document.getElementById('uploadArea').style.borderColor = '#4a9eff';
+        }
+    }
+
+    function formatSize(bytes) {
+        if (bytes === 0) return '0 B';
+        const k = 1024;
+        const sizes = ['B', 'KB', 'MB', 'GB'];
+        const i = Math.floor(Math.log(bytes) / Math.log(k));
+        return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+    }
+
+    function copyText(elementId) {
+        const input = document.getElementById(elementId);
+        input.select();
+        document.execCommand('copy');
+        alert('📋 تم نسخ الرابط');
+    }
+
+    // دالة الرفع (موجودة في script.js)
+</script>
+</body>
+</html>

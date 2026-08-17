@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>📋 السجلات — DARKHUB</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+<body>
+
+<!-- ===== شريط التنقل ===== -->
+<nav class="navbar">
+    <div class="container">
+        <div class="nav-left">
+            <a href="/" class="nav-logo">
+                <i class="fas fa-skull"></i>
+                <span>DARKHUB</span>
+            </a>
+            <div class="nav-links">
+                <a href="/" class="nav-link">الرئيسية</a>
+                <a href="/dashboard" class="nav-link">لوحة التحكم</a>
+                <a href="/upload" class="nav-link">رفع</a>
+                <a href="/files" class="nav-link">الملفات</a>
+                <a href="/execute" class="nav-link">تشغيل</a>
+                <a href="/logs" class="nav-link active">السجلات</a>
+            </div>
+        </div>
+        <div class="nav-right">
+            <button class="btn btn-outline" onclick="toggleDarkMode()">
+                <i class="fas fa-moon"></i>
+            </button>
+            <button class="btn btn-primary" onclick="window.location.href='/upload'">
+                <i class="fas fa-upload"></i> رفع ملف
+            </button>
+        </div>
+    </div>
+</nav>
+
+<!-- ===== المحتوى الرئيسي ===== -->
+<div class="logs-container">
+    <div class="logs-header">
+        <h1>📋 سجلات العمليات</h1>
+        <div class="logs-actions">
+            <button class="btn btn-outline" onclick="loadLogs()">
+                <i class="fas fa-sync"></i> تحديث
+            </button>
+            <button class="btn btn-danger" onclick="clearLogs()">
+                <i class="fas fa-eraser"></i> مسح
+            </button>
+        </div>
+    </div>
+
+    <div class="logs-filter">
+        <select id="logLevel" onchange="filterLogs(this.value)">
+            <option value="all">كل المستويات</option>
+            <option value="INFO">معلومات</option>
+            <option value="WARNING">تحذير</option>
+            <option value="ERROR">خطأ</option>
+            <option value="SUCCESS">نجاح</option>
+            <option value="DEBUG">تصحيح</option>
+        </select>
+        <input type="text" id="logSearch" placeholder="🔍 بحث في السجلات..." oninput="searchLogs(this.value)">
+    </div>
+
+    <div class="logs-container" id="logsContainer">
+        <div class="log-entry">
+            <span class="log-time">[00:00:00]</span>
+            <span class="log-level info">ℹ️</span>
+            <span class="log-message">جاري تحميل السجلات...</span>
+        </div>
+    </div>
+</div>
+
+<!-- ===== التذييل ===== -->
+<footer class="footer">
+    <div class="container">
+        <div class="footer-content">
+            <span>🐙 DARKHUB v1.0.0</span>
+            <span>💀 جميع الحقوق محفوظة للـ Void</span>
+        </div>
+    </div>
+</footer>
+
+<script src="script.js"></script>
+<script>
+    // ===== تحميل السجلات =====
+    async function loadLogs() {
+        try {
+            // محاكاة السجلات
+            const logs = [
+                { time: '12:34:56', level: 'info', message: 'تم تشغيل الإسكربت exploit.py' },
+                { time: '12:33:21', level: 'success', message: 'تم رفع الملف payload.js بنجاح' },
+                { time: '12:30:45', level: 'warning', message: 'تحذير: محاولة وصول غير مصرح' },
+                { time: '12:28:12', level: 'error', message: 'فشل تشغيل الإسكربت scanner.sh' },
+                { time: '12:25:03', level: 'info', message: 'تم بدء تشغيل الخادم' }
+            ];
+            
+            renderLogs(logs);
+        } catch (error) {
+            console.error('❌ فشل تحميل السجلات:', error);
+        }
+    }
+
+    function renderLogs(logs) {
+        const container = document.getElementById('logsContainer');
+        const icons = {
+            info: 'ℹ️',
+            success: '✅',
+            warning: '⚠️',
+            error: '❌',
+            debug: '🔍'
+        };
+        
+        container.innerHTML = logs.map(log => `
+            <div class="log-entry ${log.level}">
+                <span class="log-time">[${log.time}]</span>
+                <span class="log-level">${icons[log.level] || 'ℹ️'}</span>
+                <span class="log-message">${log.message}</span>
+            </div>
+        `).join('');
+    }
+
+    function filterLogs(level) {
+        const entries = document.querySelectorAll('.log-entry');
+        entries.forEach(entry => {
+            if (level === 'all') {
+                entry.style.display = '';
+            } else {
+                entry.style.display = entry.classList.contains(level) ? '' : 'none';
+            }
+        });
+    }
+
+    function searchLogs(query) {
+        const entries = document.querySelectorAll('.log-entry');
+        const q = query.toLowerCase();
+        entries.forEach(entry => {
+            const text = entry.textContent.toLowerCase();
+            entry.style.display = text.includes(q) ? '' : 'none';
+        });
+    }
+
+    function clearLogs() {
+        if (confirm('🗑️ هل أنت متأكد من مسح جميع السجلات؟')) {
+            document.getElementById('logsContainer').innerHTML = `
+                <div class="log-entry">
+                    <span class="log-time">[${new Date().toLocaleTimeString()}]</span>
+                    <span class="log-level info">ℹ️</span>
+                    <span class="log-message">تم مسح السجلات</span>
+                </div>
+            `;
+        }
+    }
+
+    loadLogs();
+    setInterval(loadLogs, 10000);
+</script>
+</body>
+</html>

@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>📊 لوحة التحكم — DARKHUB</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+<body>
+
+<!-- ===== شريط التنقل ===== -->
+<nav class="navbar">
+    <div class="container">
+        <div class="nav-left">
+            <a href="/" class="nav-logo">
+                <i class="fas fa-skull"></i>
+                <span>DARKHUB</span>
+            </a>
+            <div class="nav-links">
+                <a href="/" class="nav-link">الرئيسية</a>
+                <a href="/dashboard" class="nav-link active">لوحة التحكم</a>
+                <a href="/upload" class="nav-link">رفع</a>
+                <a href="/files" class="nav-link">الملفات</a>
+                <a href="/execute" class="nav-link">تشغيل</a>
+                <a href="/logs" class="nav-link">السجلات</a>
+            </div>
+        </div>
+        <div class="nav-right">
+            <button class="btn btn-outline" onclick="toggleDarkMode()">
+                <i class="fas fa-moon"></i>
+            </button>
+            <button class="btn btn-primary" onclick="window.location.href='/upload'">
+                <i class="fas fa-upload"></i> رفع ملف
+            </button>
+        </div>
+    </div>
+</nav>
+
+<!-- ===== المحتوى الرئيسي ===== -->
+<div class="dashboard-container">
+    <div class="dashboard-header">
+        <h1>📊 لوحة التحكم</h1>
+        <div class="dashboard-stats">
+            <div class="stat-box">
+                <span class="stat-number" id="totalFiles">0</span>
+                <span class="stat-label">الملفات</span>
+            </div>
+            <div class="stat-box">
+                <span class="stat-number" id="totalScripts">0</span>
+                <span class="stat-label">الإسكربتات</span>
+            </div>
+            <div class="stat-box">
+                <span class="stat-number" id="totalExecutions">0</span>
+                <span class="stat-label">التشغيلات</span>
+            </div>
+            <div class="stat-box">
+                <span class="stat-number" id="totalDownloads">0</span>
+                <span class="stat-label">التنزيلات</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="dashboard-grid">
+        <!-- ===== النشاط الأخير ===== -->
+        <div class="dashboard-card">
+            <h3><i class="fas fa-clock"></i> النشاط الأخير</h3>
+            <div class="activity-list" id="activityList">
+                <div class="activity-item">
+                    <span class="activity-time">الآن</span>
+                    <span class="activity-text">تم رفع ملف جديد</span>
+                </div>
+                <div class="activity-item">
+                    <span class="activity-time">منذ 5 دقائق</span>
+                    <span class="activity-text">تم تشغيل إسكربت</span>
+                </div>
+                <div class="activity-item">
+                    <span class="activity-time">منذ ساعة</span>
+                    <span class="activity-text">تم تنزيل ملف</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== الروابط السريعة ===== -->
+        <div class="dashboard-card">
+            <h3><i class="fas fa-link"></i> الروابط السريعة</h3>
+            <div class="quick-links">
+                <button class="quick-link" onclick="window.location.href='/upload'">
+                    <i class="fas fa-upload"></i> رفع ملف
+                </button>
+                <button class="quick-link" onclick="window.location.href='/files'">
+                    <i class="fas fa-folder"></i> الملفات
+                </button>
+                <button class="quick-link" onclick="window.location.href='/execute'">
+                    <i class="fas fa-play"></i> تشغيل
+                </button>
+                <button class="quick-link" onclick="window.location.href='/logs'">
+                    <i class="fas fa-list"></i> السجلات
+                </button>
+            </div>
+        </div>
+
+        <!-- ===== أحدث الملفات ===== -->
+        <div class="dashboard-card full-width">
+            <h3><i class="fas fa-file"></i> أحدث الملفات</h3>
+            <div class="file-list" id="recentFiles">
+                <div class="file-item">
+                    <span class="file-name">script.py</span>
+                    <span class="file-type">Python</span>
+                    <span class="file-date">اليوم</span>
+                </div>
+                <div class="file-item">
+                    <span class="file-name">payload.js</span>
+                    <span class="file-type">JavaScript</span>
+                    <span class="file-date">أمس</span>
+                </div>
+                <div class="file-item">
+                    <span class="file-name">exploit.sh</span>
+                    <span class="file-type">Bash</span>
+                    <span class="file-date">قبل يومين</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== إحصائيات النظام ===== -->
+        <div class="dashboard-card">
+            <h3><i class="fas fa-chart-bar"></i> إحصائيات النظام</h3>
+            <div class="system-stats">
+                <div class="stat-item">
+                    <span>CPU</span>
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="cpuUsage" style="width: 0%"></div>
+                    </div>
+                    <span id="cpuPercent">0%</span>
+                </div>
+                <div class="stat-item">
+                    <span>الذاكرة</span>
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="memoryUsage" style="width: 0%"></div>
+                    </div>
+                    <span id="memoryPercent">0%</span>
+                </div>
+                <div class="stat-item">
+                    <span>القرص</span>
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="diskUsage" style="width: 0%"></div>
+                    </div>
+                    <span id="diskPercent">0%</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ===== التذييل ===== -->
+<footer class="footer">
+    <div class="container">
+        <div class="footer-content">
+            <span>🐙 DARKHUB v1.0.0</span>
+            <span>💀 جميع الحقوق محفوظة للـ Void</span>
+        </div>
+    </div>
+</footer>
+
+<script src="script.js"></script>
+<script>
+    // ===== تحميل إحصائيات لوحة التحكم =====
+    async function loadDashboard() {
+        try {
+            const response = await fetch('/api/status');
+            const data = await response.json();
+            
+            if (data.success) {
+                document.getElementById('totalFiles').textContent = data.status.files || 0;
+                document.getElementById('totalScripts').textContent = data.status.scripts || 0;
+                document.getElementById('totalExecutions').textContent = data.status.executions || 0;
+                document.getElementById('totalDownloads').textContent = Math.floor(Math.random() * 100);
+                
+                document.getElementById('cpuUsage').style.width = data.status.cpu + '%';
+                document.getElementById('cpuPercent').textContent = data.status.cpu + '%';
+                document.getElementById('memoryUsage').style.width = data.status.memory + '%';
+                document.getElementById('memoryPercent').textContent = data.status.memory + '%';
+                document.getElementById('diskUsage').style.width = data.status.disk + '%';
+                document.getElementById('diskPercent').textContent = data.status.disk + '%';
+            }
+        } catch (error) {
+            console.error('❌ فشل تحميل لوحة التحكم:', error);
+        }
+    }
+
+    loadDashboard();
+    setInterval(loadDashboard, 5000);
+</script>
+</body>
+</html>

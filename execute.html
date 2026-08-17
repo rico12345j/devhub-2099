@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>▶️ تشغيل الإسكربتات — DARKHUB</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+<body>
+
+<!-- ===== شريط التنقل ===== -->
+<nav class="navbar">
+    <div class="container">
+        <div class="nav-left">
+            <a href="/" class="nav-logo">
+                <i class="fas fa-skull"></i>
+                <span>DARKHUB</span>
+            </a>
+            <div class="nav-links">
+                <a href="/" class="nav-link">الرئيسية</a>
+                <a href="/dashboard" class="nav-link">لوحة التحكم</a>
+                <a href="/upload" class="nav-link">رفع</a>
+                <a href="/files" class="nav-link">الملفات</a>
+                <a href="/execute" class="nav-link active">تشغيل</a>
+                <a href="/logs" class="nav-link">السجلات</a>
+            </div>
+        </div>
+        <div class="nav-right">
+            <button class="btn btn-outline" onclick="toggleDarkMode()">
+                <i class="fas fa-moon"></i>
+            </button>
+            <button class="btn btn-primary" onclick="window.location.href='/upload'">
+                <i class="fas fa-upload"></i> رفع ملف
+            </button>
+        </div>
+    </div>
+</nav>
+
+<!-- ===== المحتوى الرئيسي ===== -->
+<div class="execute-container">
+    <div class="execute-header">
+        <h1>▶️ تشغيل الإسكربتات</h1>
+        <p>حدد إسكربتاً من القائمة وشغله عن بعد</p>
+    </div>
+
+    <div class="execute-grid">
+        <!-- ===== قائمة الإسكربتات ===== -->
+        <div class="execute-card">
+            <h3><i class="fas fa-list"></i> الإسكربتات المتاحة</h3>
+            <div class="script-list" id="scriptList">
+                <div class="script-item" onclick="selectScript('1')">
+                    <span class="script-name">exploit.py</span>
+                    <span class="script-status">جاهز</span>
+                </div>
+                <div class="script-item" onclick="selectScript('2')">
+                    <span class="script-name">payload.js</span>
+                    <span class="script-status">جاهز</span>
+                </div>
+                <div class="script-item" onclick="selectScript('3')">
+                    <span class="script-name">scanner.sh</span>
+                    <span class="script-status">جاهز</span>
+                </div>
+                <div class="script-item" onclick="selectScript('4')">
+                    <span class="script-name">injector.py</span>
+                    <span class="script-status">جاهز</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== تفاصيل التشغيل ===== -->
+        <div class="execute-card">
+            <h3><i class="fas fa-cog"></i> تفاصيل التشغيل</h3>
+            <div class="execute-details">
+                <div class="detail-item">
+                    <label>الإسكربت</label>
+                    <span id="selectedScript">لم يتم الاختيار</span>
+                </div>
+                <div class="detail-item">
+                    <label>الحالة</label>
+                    <span id="scriptStatus" class="status-ready">جاهز</span>
+                </div>
+                <div class="detail-item">
+                    <label>المدة</label>
+                    <span id="executionTime">--</span>
+                </div>
+                <button class="btn btn-primary btn-large" onclick="executeSelected()" id="executeBtn">
+                    <i class="fas fa-play"></i> تشغيل
+                </button>
+                <button class="btn btn-danger" onclick="stopExecution()" id="stopBtn" style="display:none;">
+                    <i class="fas fa-stop"></i> إيقاف
+                </button>
+            </div>
+        </div>
+
+        <!-- ===== المخرجات ===== -->
+        <div class="execute-card full-width">
+            <h3><i class="fas fa-terminal"></i> المخرجات</h3>
+            <div class="output-container" id="outputContainer">
+                <div class="output-line">> جاهز لاستقبال الأوامر...</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ===== التذييل ===== -->
+<footer class="footer">
+    <div class="container">
+        <div class="footer-content">
+            <span>🐙 DARKHUB v1.0.0</span>
+            <span>💀 جميع الحقوق محفوظة للـ Void</span>
+        </div>
+    </div>
+</footer>
+
+<script src="script.js"></script>
+<script>
+    let selectedScriptId = null;
+    let isExecuting = false;
+
+    function selectScript(id) {
+        selectedScriptId = id;
+        document.querySelectorAll('.script-item').forEach(el => el.classList.remove('selected'));
+        document.querySelector(`.script-item[onclick*="${id}"]`).classList.add('selected');
+        document.getElementById('selectedScript').textContent = document.querySelector(`.script-item[onclick*="${id}"] .script-name`).textContent;
+        document.getElementById('scriptStatus').textContent = 'جاهز';
+        document.getElementById('scriptStatus').className = 'status-ready';
+        document.getElementById('executeBtn').style.display = 'inline-flex';
+        document.getElementById('stopBtn').style.display = 'none';
+    }
+
+    async function executeSelected() {
+        if (!selectedScriptId) {
+            alert('يرجى اختيار إسكربت أولاً');
+            return;
+        }
+
+        if (isExecuting) return;
+
+        isExecuting = true;
+        document.getElementById('executeBtn').style.display = 'none';
+        document.getElementById('stopBtn').style.display = 'inline-flex';
+        document.getElementById('scriptStatus').textContent = 'جاري التشغيل...';
+        document.getElementById('scriptStatus').className = 'status-running';
+
+        const output = document.getElementById('outputContainer');
+        output.innerHTML = '<div class="output-line">> جاري تشغيل الإسكربت...</div>';
+
+        try {
+            const response = await fetch(`/api/execute/${selectedScriptId}`, {
+                method: 'POST'
+            });
+            const data = await response.json();
+
+            if (data.success) {
+                document.getElementById('scriptStatus').textContent = '✅ نجاح';
+                document.getElementById('scriptStatus').className = 'status-success';
+                output.innerHTML = `<div class="output-line">> ✅ تم التشغيل بنجاح</div>`;
+                if (data.output) {
+                    data.output.split('\n').forEach(line => {
+                        output.innerHTML += `<div class="output-line">> ${line}</div>`;
+                    });
+                }
+            } else {
+                document.getElementById('scriptStatus').textContent = '❌ فشل';
+                document.getElementById('scriptStatus').className = 'status-error';
+                output.innerHTML = `<div class="output-line">> ❌ فشل التشغيل: ${data.error}</div>`;
+            }
+        } catch (error) {
+            document.getElementById('scriptStatus').textContent = '❌ خطأ';
+            document.getElementById('scriptStatus').className = 'status-error';
+            output.innerHTML = `<div class="output-line">> ❌ خطأ: ${error.message}</div>`;
+        }
+
+        isExecuting = false;
+        document.getElementById('executeBtn').style.display = 'inline-flex';
+        document.getElementById('stopBtn').style.display = 'none';
+    }
+
+    function stopExecution() {
+        if (isExecuting) {
+            isExecuting = false;
+            document.getElementById('scriptStatus').textContent = '⛔ تم الإيقاف';
+            document.getElementById('scriptStatus').className = 'status-stopped';
+            document.getElementById('executeBtn').style.display = 'inline-flex';
+            document.getElementById('stopBtn').style.display = 'none';
+            document.getElementById('outputContainer').innerHTML += '<div class="output-line">> ⛔ تم إيقاف التشغيل</div>';
+        }
+    }
+</script>
+</body>
+</html>

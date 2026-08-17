@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>📂 الملفات — DARKHUB</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+<body>
+
+<!-- ===== شريط التنقل ===== -->
+<nav class="navbar">
+    <div class="container">
+        <div class="nav-left">
+            <a href="/" class="nav-logo">
+                <i class="fas fa-skull"></i>
+                <span>DARKHUB</span>
+            </a>
+            <div class="nav-links">
+                <a href="/" class="nav-link">الرئيسية</a>
+                <a href="/dashboard" class="nav-link">لوحة التحكم</a>
+                <a href="/upload" class="nav-link">رفع</a>
+                <a href="/files" class="nav-link active">الملفات</a>
+                <a href="/execute" class="nav-link">تشغيل</a>
+                <a href="/logs" class="nav-link">السجلات</a>
+            </div>
+        </div>
+        <div class="nav-right">
+            <button class="btn btn-outline" onclick="toggleDarkMode()">
+                <i class="fas fa-moon"></i>
+            </button>
+            <button class="btn btn-primary" onclick="window.location.href='/upload'">
+                <i class="fas fa-upload"></i> رفع ملف
+            </button>
+        </div>
+    </div>
+</nav>
+
+<!-- ===== المحتوى الرئيسي ===== -->
+<div class="files-container">
+    <div class="files-header">
+        <h1>📂 الملفات</h1>
+        <div class="files-actions">
+            <button class="btn btn-outline" onclick="loadFiles()">
+                <i class="fas fa-sync"></i> تحديث
+            </button>
+            <button class="btn btn-primary" onclick="window.location.href='/upload'">
+                <i class="fas fa-upload"></i> رفع ملف
+            </button>
+        </div>
+    </div>
+
+    <div class="files-grid" id="filesGrid">
+        <!-- سيتم عرض الملفات هنا -->
+        <div class="loading-state">
+            <i class="fas fa-spinner fa-spin"></i>
+            <p>جارٍ تحميل الملفات...</p>
+        </div>
+    </div>
+</div>
+
+<!-- ===== التذييل ===== -->
+<footer class="footer">
+    <div class="container">
+        <div class="footer-content">
+            <span>🐙 DARKHUB v1.0.0</span>
+            <span>💀 جميع الحقوق محفوظة للـ Void</span>
+        </div>
+    </div>
+</footer>
+
+<script src="script.js"></script>
+<script>
+    // ===== تحميل الملفات =====
+    async function loadFiles() {
+        try {
+            const response = await fetch('/api/files');
+            const data = await response.json();
+            
+            const grid = document.getElementById('filesGrid');
+            
+            if (data.success && data.files.length > 0) {
+                grid.innerHTML = data.files.map(file => `
+                    <div class="file-card">
+                        <div class="file-icon">
+                            <i class="fas ${file.is_script ? 'fa-code' : 'fa-file'}"></i>
+                        </div>
+                        <div class="file-info">
+                            <h4>${file.name}</h4>
+                            <p>${file.description || 'لا يوجد وصف'}</p>
+                            <div class="file-meta">
+                                <span>📦 ${formatSize(file.size)}</span>
+                                <span>📅 ${new Date(file.created_at).toLocaleDateString('ar')}</span>
+                                ${file.is_script ? '<span class="badge-script">إسكربت</span>' : ''}
+                            </div>
+                        </div>
+                        <div class="file-actions">
+                            <button class="btn btn-outline btn-small" onclick="copyLink('${file.id}')">
+                                <i class="fas fa-link"></i>
+                            </button>
+                            <button class="btn btn-outline btn-small" onclick="window.location.href='/api/download/${file.id}'">
+                                <i class="fas fa-download"></i>
+                            </button>
+                            ${file.is_script ? `<button class="btn btn-primary btn-small" onclick="window.location.href='/execute?script=${file.id}'">
+                                <i class="fas fa-play"></i>
+                            </button>` : ''}
+                            <button class="btn btn-danger btn-small" onclick="deleteFile('${file.id}')">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                `).join('');
+            } else {
+                grid.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-inbox"></i>
+                        <p>لا توجد ملفات</p>
+                        <button class="btn btn-primary" onclick="window.location.href='/upload'">
+                            رفع ملف جديد
+                        </button>
+                    </div>
+                `;
+            }
+        } catch (error) {
+            console.error('❌ فشل تحميل الملفات:', error);
+            document.getElementById('filesGrid').innerHTML = `
+                <div class="empty-state">
+                    <i class="fas fa-exclamation-circle"></i>
+                    <p>فشل تحميل الملفات</p>
+                    <button class="btn btn-primary" onclick="loadFiles()">إعادة المحاولة</button>
+                </div>
+            `;
+        }
+    }
+
+    function formatSize(bytes) {
+        if (bytes === 0) return '0 B';
+        const k = 1024;
+        const sizes = ['B', 'KB', 'MB', 'GB'];
+        const i = Math.floor(Math.log(bytes) / Math.log(k));
+        return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+    }
+
+    loadFiles();
+    setInterval(loadFiles, 30000);
+</script>
+</body>
+</html>

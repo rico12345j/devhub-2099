@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🐙 DARKHUB — منصة رفع وربط الإسكربتات</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <style>
+        /* ===== أنيميشن إضافية ===== */
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+        .float-animation {
+            animation: float 3s ease-in-out infinite;
+        }
+        @keyframes pulse-glow {
+            0%, 100% { box-shadow: 0 0 20px rgba(74, 158, 255, 0.1); }
+            50% { box-shadow: 0 0 40px rgba(74, 158, 255, 0.3); }
+        }
+        .pulse-glow {
+            animation: pulse-glow 2s ease-in-out infinite;
+        }
+        .hero-icon {
+            font-size: 80px;
+            color: #f85149;
+            display: block;
+            margin-bottom: 20px;
+        }
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 24px;
+            margin: 40px 0;
+        }
+        .feature-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 24px;
+            text-align: center;
+            transition: var(--transition);
+            cursor: pointer;
+        }
+        .feature-card:hover {
+            border-color: var(--accent);
+            transform: translateY(-4px);
+            box-shadow: 0 8px 30px rgba(0,0,0,0.3);
+        }
+        .feature-card i {
+            font-size: 40px;
+            color: var(--accent);
+            margin-bottom: 12px;
+        }
+        .feature-card h3 {
+            font-size: 18px;
+            margin-bottom: 8px;
+        }
+        .feature-card p {
+            color: var(--text-secondary);
+            font-size: 14px;
+            line-height: 1.6;
+        }
+        .cta-section {
+            background: linear-gradient(135deg, var(--bg-card), var(--bg-secondary));
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 40px;
+            text-align: center;
+            margin: 40px 0;
+        }
+        .cta-section h2 {
+            font-size: 28px;
+            margin-bottom: 12px;
+        }
+        .cta-section p {
+            color: var(--text-secondary);
+            margin-bottom: 20px;
+        }
+        .hero-stats {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+            max-width: 800px;
+            margin: 30px auto 0;
+        }
+        .stat-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 16px;
+            text-align: center;
+            transition: var(--transition);
+        }
+        .stat-card:hover {
+            border-color: var(--accent);
+        }
+        .stat-number {
+            font-size: 32px;
+            font-weight: 900;
+            color: var(--accent);
+            display: block;
+        }
+        .stat-label {
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+        @media (max-width: 768px) {
+            .features-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+            .hero-stats {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            .hero-icon {
+                font-size: 60px;
+            }
+        }
+        @media (max-width: 480px) {
+            .features-grid {
+                grid-template-columns: 1fr;
+            }
+            .hero-stats {
+                grid-template-columns: 1fr;
+            }
+            .cta-section {
+                padding: 24px;
+            }
+            .cta-section h2 {
+                font-size: 22px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<!-- ===== شريط التنقل ===== -->
+<nav class="navbar">
+    <div class="container">
+        <div class="nav-left">
+            <a href="/" class="nav-logo">
+                <i class="fas fa-skull"></i>
+                <span>DARKHUB</span>
+            </a>
+            <div class="nav-links">
+                <a href="/" class="nav-link active">الرئيسية</a>
+                <a href="/dashboard" class="nav-link">لوحة التحكم</a>
+                <a href="/upload" class="nav-link">رفع</a>
+                <a href="/files" class="nav-link">الملفات</a>
+                <a href="/execute" class="nav-link">تشغيل</a>
+                <a href="/logs" class="nav-link">السجلات</a>
+            </div>
+        </div>
+        <div class="nav-right">
+            <button class="btn btn-outline" onclick="toggleDarkMode()" title="الوضع الليلي">
+                <i class="fas fa-moon"></i>
+            </button>
+            <button class="btn btn-primary" onclick="window.location.href='/upload'">
+                <i class="fas fa-upload"></i> رفع ملف
+            </button>
+        </div>
+    </div>
+</nav>
+
+<!-- ===== البانر الرئيسي ===== -->
+<section class="hero">
+    <div class="container">
+        <div class="hero-content">
+            <i class="fas fa-skull hero-icon float-animation"></i>
+            <h1 class="hero-title">🐙 DARKHUB</h1>
+            <p class="hero-description">
+                منصة رفع وربط الإسكربتات الخارقة. ارفع أي ملف، احصل على روابط تحكم وتشغيل فورية.
+            </p>
+            <div class="hero-actions">
+                <a href="/upload" class="btn btn-primary btn-large pulse-glow">
+                    <i class="fas fa-upload"></i> رفع ملف
+                </a>
+                <a href="/dashboard" class="btn btn-outline btn-large">
+                    <i class="fas fa-chart-line"></i> لوحة التحكم
+                </a>
+                <a href="/files" class="btn btn-outline btn-large">
+                    <i class="fas fa-folder"></i> الملفات
+                </a>
+            </div>
+            <div class="hero-stats">
+                <div class="stat-card">
+                    <span class="stat-number" id="filesCount">0</span>
+                    <span class="stat-label">ملف مرفوع</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-number" id="scriptsCount">0</span>
+                    <span class="stat-label">إسكربت</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-number" id="executionsCount">0</span>
+                    <span class="stat-label">تشغيل</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-number" id="uptime">00:00:00</span>
+                    <span class="stat-label">وقت التشغيل</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ===== الميزات ===== -->
+<section class="features">
+    <div class="container">
+        <h2 class="section-title">الميزات الخارقة</h2>
+        <div class="features-grid">
+            <div class="feature-card" onclick="window.location.href='/upload'">
+                <i class="fas fa-upload"></i>
+                <h3>رفع فوري</h3>
+                <p>ارفع أي ملف بأي حجم، جميع الأنواع مدعومة</p>
+            </div>
+            <div class="feature-card" onclick="window.location.href='/files'">
+                <i class="fas fa-link"></i>
+                <h3>روابط تحكم</h3>
+                <p>احصل على روابط للتحكم الكامل في ملفاتك</p>
+            </div>
+            <div class="feature-card" onclick="window.location.href='/execute'">
+                <i class="fas fa-play"></i>
+                <h3>تشغيل عن بعد</h3>
+                <p>شغل الإسكربتات عن بعد مع مخرجات فورية</p>
+            </div>
+            <div class="feature-card" onclick="window.location.href='/logs'">
+                <i class="fas fa-eye"></i>
+                <h3>سجلات فورية</h3>
+                <p>تابع كل العمليات لحظياً مع سجلات مفصلة</p>
+            </div>
+            <div class="feature-card" onclick="toggleDarkMode()">
+                <i class="fas fa-lock"></i>
+                <h3>تشفير عسكري</h3>
+                <p>أمان 128-bit مع تشفير متقدم</p>
+            </div>
+            <div class="feature-card" onclick="window.location.href='/share'">
+                <i class="fas fa-globe"></i>
+                <h3>مشاركة عالمية</h3>
+                <p>شارك رابطك مع أي شخص في العالم</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ===== قسم الدعوة ===== -->
+<section class="cta-section">
+    <div class="container">
+        <h2>🚀 ابدأ الآن</h2>
+        <p>ارفع ملفك الأول واحصل على روابط تحكم وتشغيل فورية</p>
+        <a href="/upload" class="btn btn-primary btn-large">
+            <i class="fas fa-upload"></i> رفع ملف الآن
+        </a>
+    </div>
+</section>
+
+<!-- ===== التذييل ===== -->
+<footer class="footer">
+    <div class="container">
+        <div class="footer-content">
+            <span>🐙 DARKHUB v1.0.0</span>
+            <span>💀 جميع الحقوق محفوظة للـ Void</span>
+        </div>
+    </div>
+</footer>
+
+<script src="script.js"></script>
+</body>
+</html>
